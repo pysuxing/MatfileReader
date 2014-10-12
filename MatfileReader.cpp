@@ -246,7 +246,7 @@ NumericArray<T>::NumericArray(char* data, bool endianSwap) :
     parseFlags(data);
     data += _flags->totalBytes();
     parseDimensionsArray(data);
-    data += _dimentionsArray->totalBytes();
+    data += _dimensionsArray->totalBytes();
     parseArrayName(data);
     data += _name->totalBytes();
     parseReal(data);
@@ -270,7 +270,7 @@ SparseArray<T>::SparseArray(char* data, bool endianSwap) :
     parseFlags(data);
     data += _flags->totalBytes();
     parseDimensionsArray(data);
-    data += _dimentionsArray->totalBytes();
+    data += _dimensionsArray->totalBytes();
     parseArrayName(data);
     data += _name->totalBytes();
     parseRows(data);
@@ -296,7 +296,7 @@ Cell::Cell(char* data, bool endianSwap) : MatrixDataElement(endianSwap), _cells(
     parseFlags(data);
     data += _flags->totalBytes();
     parseDimensionsArray(data);
-    data += _dimentionsArray->totalBytes();
+    data += _dimensionsArray->totalBytes();
     parseArrayName(data);
     data += _name->totalBytes();
     MatrixDataElement* cell = NULL;
@@ -321,7 +321,7 @@ Struct::Struct(char* data, bool endianSwap) :
     parseFlags(data);
     data += _flags->totalBytes();
     parseDimensionsArray(data);
-    data += _dimentionsArray->totalBytes();
+    data += _dimensionsArray->totalBytes();
     parseArrayName(data);
     data += _name->totalBytes();
     parseFieldNameLength(data);
@@ -349,7 +349,7 @@ Object::Object(char* data, bool endianSwap) : _className(NULL), Struct(endianSwa
     parseFlags(data);
     data += _flags->totalBytes();
     parseDimensionsArray(data);
-    data += _dimentionsArray->totalBytes();
+    data += _dimensionsArray->totalBytes();
     parseArrayName(data);
     data += _name->totalBytes();
     parseClassName(data);
@@ -399,7 +399,7 @@ void MatfileReader::parseHeader() {
 }
 
 void MatfileReader::parseDataElement() {
-    if (eof())
+    if (_inputStream.eof())
         return;
     uint32_t dataType;
     uint32_t numberOfBytes;
@@ -434,4 +434,10 @@ void MatfileReader::parseDataElement() {
     // padding
     if (numberOfBytes % 8)
         _inputStream.ignore(8 - numberOfBytes % 8);
+}
+
+void MatfileReader::parseAllDataElements() {
+    gotoData();
+    while (!_inputStream.eof())
+        parseDataElement();
 }
