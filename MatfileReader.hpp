@@ -1,5 +1,5 @@
-#ifndef _MATLABMATRIXREADER_H_
-#define _MATLABMATRIXREADER_H_
+#ifndef _MATFILEREADER_H_
+#define _MATFILEREADER_H_
 
 #include <cstdint>
 #include <iosfwd>
@@ -314,11 +314,11 @@ protected:
 
 
 
-class MatlabMatrixReader
+class MatfileReader
 {
 public:
-    MatlabMatrixReader(std::string matfile);
-    virtual ~MatlabMatrixReader();
+    MatfileReader(std::string matfile);
+    virtual ~MatfileReader();
 public:
     std::string descriptiveText() { return _descriptiveText; }
     uint64_t subsysDataOffset() { return _subsysDataOffset; }
@@ -347,4 +347,4 @@ private:
     std::vector<DataElement*> _dataElements;
 };
 
-#endif /* _MATLABMATRIXREADER_H_ */
+#endif /* _MATFILEREADER_H_ */

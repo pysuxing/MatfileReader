@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace std;
 #include <zlib.h>
-#include "MatlabMatrixReader.hpp"
+#include "MatfileReader.hpp"
 
 // endian_swap utility
 inline void endianSwap(uint16_t& x) {
@@ -370,7 +370,7 @@ Object::Object(char* data, bool endianSwap) : _className(NULL), Struct(endianSwa
 }
 
 
-MatlabMatrixReader::MatlabMatrixReader(string matfile)
+MatfileReader::MatfileReader(string matfile)
     : _matfile(matfile), _inputStream(), _descriptiveText(), _subsysDataOffset(0),
       _version(0), _endianIndicator(), _endianSwap(false) {
     _inputStream.open(_matfile, ios_base::in | ios_base::binary);
@@ -380,12 +380,12 @@ MatlabMatrixReader::MatlabMatrixReader(string matfile)
     }
 }
 
-MatlabMatrixReader::~MatlabMatrixReader() {
+MatfileReader::~MatfileReader() {
     for (int i = 0; i < _dataElements.size(); ++i)
         delete _dataElements[i];
 }
 
-void MatlabMatrixReader::parseHeader() {
+void MatfileReader::parseHeader() {
     gotoHeader();
     _inputStream.read(_header, 128);
     _descriptiveText.assign(_header, 116);
@@ -398,7 +398,7 @@ void MatlabMatrixReader::parseHeader() {
         _endianSwap = false;
 }
 
-void MatlabMatrixReader::parseDataElement() {
+void MatfileReader::parseDataElement() {
     if (eof())
         return;
     uint32_t dataType;
@@ -422,7 +422,7 @@ void MatlabMatrixReader::parseDataElement() {
     else {
         data = new char[numberOfBytes+8];
         if (!data) {
-            cerr << "MatlabMatrixReader::parseDataElement new failed!\n";
+            cerr << "MatfileReader::parseDataElement new failed!\n";
             exit(1);
         }
         memcpy(data, tag, 8);

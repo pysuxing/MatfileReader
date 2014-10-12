@@ -2,11 +2,11 @@
 #include <cassert>
 using namespace std;
 
-#include "MatlabMatrixReader.hpp"
+#include "MatfileReader.hpp"
 
 int main(int argc, char *argv[])
 {
-    MatlabMatrixReader* mmr = new MatlabMatrixReader("test.mat");
+    MatfileReader* mmr = new MatfileReader("test.mat");
     mmr->parseHeader();
     // cout << mmr->descriptiveText() << endl;
     // cout << mmr->subsysDataOffset() << endl;

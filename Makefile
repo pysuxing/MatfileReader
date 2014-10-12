@@ -6,7 +6,7 @@ ALL = test
 
 all: $(ALL)
 
-test: test.cpp MatlabMatrixReader.cpp
+test: test.cpp MatfileReader.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 clean:
