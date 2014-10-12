@@ -60,25 +60,25 @@ DataElement* parse(char* data, bool endianSwap) {
         de = new FlatDataElement<int8_t>(data, endianSwap);
         break;
     case miUINT8:
-        de = new FlatDataElement<int8_t>(data, endianSwap);
+        de = new FlatDataElement<uint8_t>(data, endianSwap);
         break;
     case miINT16:
         de = new FlatDataElement<int16_t>(data, endianSwap);
         break;
     case miUINT16:
-        de = new FlatDataElement<int16_t>(data, endianSwap);
+        de = new FlatDataElement<uint16_t>(data, endianSwap);
         break;
     case miINT32:
         de = new FlatDataElement<int32_t>(data, endianSwap);
         break;
     case miUINT32:
-        de = new FlatDataElement<int32_t>(data, endianSwap);
+        de = new FlatDataElement<uint32_t>(data, endianSwap);
         break;
     case miINT64:
-        de = new FlatDataElement<int8_t>(data, endianSwap);
+        de = new FlatDataElement<int64_t>(data, endianSwap);
         break;
     case miUINT64:
-        de = new FlatDataElement<int8_t>(data, endianSwap);
+        de = new FlatDataElement<uint64_t>(data, endianSwap);
         break;
     case miSINGLE:
         de = new FlatDataElement<float>(data, endianSwap);
@@ -160,7 +160,7 @@ DataElement* parse(char* data, bool endianSwap) {
     }
     return de;
 }
-
+//===========================================================
 
 void DataElement::parseTag(char* tag) {
     _isSmallDataElement = (tag[2] & 0xFF) || (tag[3] & 0xFF);

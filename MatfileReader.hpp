@@ -26,50 +26,6 @@ enum EDataType {
     miINVALID = 0,
 };
 
-template <EDataType DT>
-struct DataTypeToNumeric{
-};
-template <>
-struct DataTypeToNumeric<miINT8> {
-    typedef int8_t type;
-};
-template <>
-struct DataTypeToNumeric<miUINT8> {
-    typedef uint8_t type;
-};
-template <>
-struct DataTypeToNumeric<miINT16> {
-    typedef int16_t type;
-};
-template <>
-struct DataTypeToNumeric<miUINT16> {
-    typedef uint16_t type;
-};
-template <>
-struct DataTypeToNumeric<miINT32> {
-    typedef int32_t type;
-};
-template <>
-struct DataTypeToNumeric<miUINT32> {
-    typedef uint32_t type;
-};
-template <>
-struct DataTypeToNumeric<miINT64> {
-    typedef int64_t type;
-};
-template <>
-struct DataTypeToNumeric<miUINT64> {
-    typedef uint64_t type;
-};
-template <>
-struct DataTypeToNumeric<miSINGLE> {
-    typedef float type;
-};
-template <>
-struct DataTypeToNumeric<miDOUBLE> {
-    typedef double type;
-};
-
 enum EMatrixClass {
     mxCELL_CLASS = 1,
     mxSTRUCT_CLASS = 2,
@@ -89,53 +45,9 @@ enum EMatrixClass {
     mxINVALID = 0,
 };
 
-template <EMatrixClass MC>
-struct MatrixClassToNumeric {
-};
-template <>
-struct MatrixClassToNumeric<mxDOUBLE_CLASS> {
-    typedef double type;
-};
-template <>
-struct MatrixClassToNumeric<mxSINGLE_CLASS> {
-    typedef float type;
-};
-template <>
-struct MatrixClassToNumeric<mxINT8_CLASS> {
-    typedef int8_t type;
-};
-template <>
-struct MatrixClassToNumeric<mxUINT8_CLASS> {
-    typedef uint8_t type;
-};
-template <>
-struct MatrixClassToNumeric<mxINT16_CLASS> {
-    typedef int16_t type;
-};
-template <>
-struct MatrixClassToNumeric<mxUINT16_CLASS> {
-    typedef uint16_t type;
-};
-template <>
-struct MatrixClassToNumeric<mxINT32_CLASS> {
-    typedef int32_t type;
-};
-template <>
-struct MatrixClassToNumeric<mxUINT32_CLASS> {
-    typedef uint32_t type;
-};
-template <>
-struct MatrixClassToNumeric<mxINT64_CLASS> {
-    typedef int64_t type;
-};
-template <>
-struct MatrixClassToNumeric<mxUINT64_CLASS> {
-    typedef uint64_t type;
-};
-
 std::pair<EDataType, EMatrixClass> classify(char* data);
 class DataElement;
-DataElement* parse(char* data, bool endianSwap);
+DataElement* parse(char* data, bool endianSwap = false);
 
 class DataElement
 {
@@ -168,7 +80,6 @@ public:
     virtual ~FlatDataElement() {}
 public:
     std::vector<T>& data() { return _data; }
-    // T operator [] (int32_t idx) { return _data[idx]; }
 protected:
     std::vector<T> _data;
 };
@@ -245,6 +156,7 @@ public:
     virtual ~FieldNames() {}
 public:
     std::vector<std::string> fieldNames() { return _fieldNames; }
+    int32_t fieldNameLength() { return _fieldNameLength; }
 protected:
     std::vector<std::string> _fieldNames;
     int32_t _fieldNameLength;
@@ -267,10 +179,10 @@ protected:
 // FIXME: UNICODE datatype unimplemented
 // unimplemented UNICODE support, but works with ASCII strings
 template <EDataType UE>         // UE can be miUTF8, miUTF16, miUTF32
-class UnicodeDataElement: public FlatDataElement<char>
+class UnicodeDataElement: public FlatDataElement<unsigned char>
 {
 public:
-    UnicodeDataElement(char* data, bool endianSwap) : FlatDataElement<char>(data, endianSwap) {}
+    UnicodeDataElement(char* data, bool endianSwap) : FlatDataElement<unsigned char>(data, endianSwap) {}
     virtual ~UnicodeDataElement() {}
 public:
     std::string str() { return std::string(_data.begin(), _data.end()); }
@@ -290,13 +202,6 @@ public:
     ArrayFlags* arrayFlags() { return _flags;}
     DimensionsArray* dimensionsArray() { return _dimensionsArray; }
     Name* name() { return _name; }
-    // EMatrixClass matrixClass() { return _flags->klass(); }
-    // bool complex() { return _flags->complex(); }
-    // bool global() { return _flags->global(); }
-    // bool logical() { return _flags->logical(); }
-    // int32_t dimensionNumber() { return _dimensionsArray->dimensionNumber(); }
-    // std::vector<int32_t> dimensions() { return _dimensionsArray->dimensions(); }
-    // std::string name() { return _name->name(); }
 protected:
     void parseFlags(char* flags) {
         _flags = new ArrayFlags(flags, _endianSwap);
@@ -323,20 +228,16 @@ public:
         if (_imag) delete _imag;
     }
 public:
-    RealImag<T>* real() { return _real; }
-    RealImag<T>* imag() { return _imag; }
+    DataElement* real() { return _real; }
+    DataElement* imag() { return _imag; }
 protected:
     void parseReal(char* real) { _real = parse(real, _endianSwap); }
     void parseImag(char* imag) { _imag = parse(imag, _endianSwap); }
-    // void parseReal(char* real) { _real = new RealImag<T>(real, _endianSwap); }
-    // void parseImag(char* imag) { _imag = new RealImag<T>(imag, _endianSwap); }
 protected:
     // The real/imag subelement could be RealImag<U> in which U is not T
     // due to automatic compression of numeric data
     DataElement* _real;
     DataElement* _imag;
-    // RealImag<T>* _real;
-    // RealImag<T>* _imag;
 };
 
 template <typename T>
@@ -353,15 +254,13 @@ public:
 public:
     SparseIndex* rows() { return _rows; }
     SparseIndex* cols() { return _cols; }
-    RealImag<T>* real() { return _real; }
-    RealImag<T>* imag() { return _imag; }
+    DataElement* real() { return _real; }
+    DataElement* imag() { return _imag; }
 protected:
     void parseRows(char* rows) { _rows = new SparseIndex(rows, _endianSwap); }
     void parseCols(char* cols) { _cols = new SparseIndex(cols, _endianSwap); }
     void parseReal(char* real) { _real = parse(real, _endianSwap); }
     void parseImag(char* imag) { _imag = parse(imag, _endianSwap); }
-    // void parseReal(char* real) { _real = new RealImag<T>(real, _endianSwap); }
-    // void parseImag(char* imag) { _imag = new RealImag<T>(imag, _endianSwap); }
 protected:
     SparseIndex* _rows;
     SparseIndex* _cols;
@@ -369,8 +268,6 @@ protected:
     // due to automatic compression of numeric data
     DataElement* _real;
     DataElement* _imag;
-    // RealImag<T>* _real;
-    // RealImag<T>* _imag;
 };
 
 class Cell: public MatrixDataElement
